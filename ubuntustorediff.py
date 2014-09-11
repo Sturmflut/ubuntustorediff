@@ -28,8 +28,12 @@ def fetch_app_details(appurl):
 
   if 'Error' in result:
     sys.exit("Could not fetch/parse JSON for the following URL: " + appurl)
+  
+  try:
+    lastupdate_raw = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%S.%fZ')
+  except:
+        lastupdate_raw = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%SZ')
     
-  lastupdate_raw = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%S.%fZ')
   lastupdate = time.strftime('%a, %d %b %Y %H:%M:%S GMT', lastupdate_raw);
     
   return (result['version'], result['description'], result['changelog'], lastupdate)

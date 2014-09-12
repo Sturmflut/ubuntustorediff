@@ -7,8 +7,8 @@ import urllib.request
 
 # App class
 class App:
-  def __init__(self, name, version, publisher, lastupdate, description, changelog):
-    self.name = name
+  def __init__(self, title, version, publisher, lastupdate, description, changelog):
+    self.title = title
     self.version = version
     self.publisher = publisher
     self.lastupdate = lastupdate
@@ -30,11 +30,9 @@ def fetch_app_details(appurl):
     sys.exit("Could not fetch/parse JSON for the following URL: " + appurl)
   
   try:
-    lastupdate_raw = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    lastupdate = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%S.%fZ')
   except:
-        lastupdate_raw = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%SZ')
-    
-  lastupdate = time.strftime('%a, %d %b %Y %H:%M:%S GMT', lastupdate_raw);
+    lastupdate = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%SZ')
     
   return (result['version'], result['description'], result['changelog'], lastupdate)
 
@@ -53,10 +51,15 @@ def fetch_app_list():
     
   for app in appdatajson:
     (version, description, changelog, lastupdate) = fetch_app_details(app['_links']['self']['href'])
-    applist.append(App(app['name'], version, app['publisher'], lastupdate, description, changelog))
+    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog))
     
   return applist
 
+
+# Sort app entries by date (descending)
+def sort_app_list_by_date(applist):
+  applist.sort(key=lambda x: x.lastupdate, reverse=True)
+  return applist
 
 
 # Write the output RSS file
@@ -68,13 +71,21 @@ def write_rss_feed(filename, applist):
   f.write("<rss version=\"2.0\">\n")
   f.write("<channel>\n")
   f.write("  <title>Ubuntu Store App Feed</title>\n")
+  f.write("  <copyright></copyright>\n")
+  f.write("  <link>http://www.ubuntu.com</link>\n")
+  f.write("  <description>Ubuntu App Store RSS feed</description>\n")
+  f.write("  <atom:link href=\"http://hogsmeade.lieberbiber.de/appstorediff.xml\" rel=\"self\" type=\"application/rss+xml\" />");
+  f.write("  <language>en</language>\n")
+  f.write("  <lastBuildDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT') + "</lastBuildDate>\n")
+  f.write("  <pubDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT') + "</pubDate>\n")
+  f.write("  <generator>ubuntustorediff.py</generator>\n")
   
   for app in applist:
     f.write("  <item>\n")
-    f.write("    <title>" + app.name + " " + app.version + "</title>\n")
-    f.write("    <pubDate>" + app.lastupdate + "</pubDate>\n")
-    f.write("    <guid>" + app.name + "_" + app.version + "_" + app.lastupdate + "</guid>\n")
-    f.write("    <description><![CDATA[Changelog: " + app.changelog + "]]></description>\n")
+    f.write("    <title>" + app.title + " " + app.version + "</title>\n")
+    f.write("    <pubDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT', app.lastupdate) + "</pubDate>\n")
+    f.write("    <guid>" + app.title + "_" + app.version + "</guid>\n")
+    f.write("    <description><![CDATA[Description: " + app.description + "<br/><br/>Changelog: " + app.changelog + "]]></description>\n")
     f.write("  </item>\n")
     
   f.write("</channel>\n")
@@ -89,4 +100,5 @@ if __name__ == '__main__':
     sys.exit()
   
   applist = fetch_app_list()
+  applist = sort_app_list_by_date(applist)
   write_rss_feed(sys.argv[1], applist)

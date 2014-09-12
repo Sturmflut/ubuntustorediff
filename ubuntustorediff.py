@@ -68,13 +68,12 @@ def write_rss_feed(filename, applist):
 
   # Write RSS Header
   f.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
-  f.write("<rss version=\"2.0\">\n")
+  f.write("<rss version=\"0.91\">\n")
   f.write("<channel>\n")
   f.write("  <title>Ubuntu Store App Feed</title>\n")
-  f.write("  <copyright></copyright>\n")
+  f.write("  <copyright>GPLv3</copyright>\n")
   f.write("  <link>http://www.ubuntu.com</link>\n")
   f.write("  <description>Ubuntu App Store RSS feed</description>\n")
-  f.write("  <atom:link href=\"http://hogsmeade.lieberbiber.de/appstorediff.xml\" rel=\"self\" type=\"application/rss+xml\" />");
   f.write("  <language>en</language>\n")
   f.write("  <lastBuildDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT') + "</lastBuildDate>\n")
   f.write("  <pubDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT') + "</pubDate>\n")
@@ -85,7 +84,7 @@ def write_rss_feed(filename, applist):
     f.write("    <title>" + app.title + " " + app.version + "</title>\n")
     f.write("    <pubDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT', app.lastupdate) + "</pubDate>\n")
     f.write("    <guid>" + app.title + "_" + app.version + "</guid>\n")
-    f.write("    <description><![CDATA[Description: " + app.description + "<br/><br/>Changelog: " + app.changelog + "]]></description>\n")
+    f.write("    <description><![CDATA[Publisher: " + app.publisher + "<br/><br/>Description: " + app.description + "<br/><br/>Changelog: " + app.changelog + "]]></description>\n")
     f.write("  </item>\n")
     
   f.write("</channel>\n")

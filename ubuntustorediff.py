@@ -4,11 +4,14 @@ import sys
 import simplejson
 import time
 import urllib.request
+import hashlib
 
 # App class
 class App:
   def __init__(self, title, version, publisher, lastupdate, description, changelog):
-    self.title = title
+    realtitle = title.replace("&", "&amp;")
+
+    self.title = realtitle
     self.version = version
     self.publisher = publisher
     self.lastupdate = lastupdate
@@ -83,7 +86,11 @@ def write_rss_feed(filename, applist):
     f.write("  <item>\n")
     f.write("    <title>" + app.title + " " + app.version + "</title>\n")
     f.write("    <pubDate>" + time.strftime('%a, %d %b %Y %H:%M:%S GMT', app.lastupdate) + "</pubDate>\n")
-    f.write("    <guid>" + app.title + "_" + app.version + "</guid>\n")
+
+    # GUID
+    m = hashlib.md5(app.title.encode('utf-8') + "_".encode('utf-8') + app.version.encode('utf-8'))
+    f.write("    <guid>" + m.hexdigest() + "</guid>\n")
+
     f.write("    <description><![CDATA[Publisher: " + app.publisher + "<br/><br/>Description: " + app.description + "<br/><br/>Changelog: " + app.changelog + "]]></description>\n")
     f.write("  </item>\n")
     

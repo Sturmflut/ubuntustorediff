@@ -8,7 +8,7 @@ import hashlib
 
 # App class
 class App:
-  def __init__(self, title, version, publisher, lastupdate, description, changelog):
+  def __init__(self, title, version, publisher, lastupdate, description, changelog, image):
     realtitle = title.replace("&", "&amp;")
 
     self.title = realtitle
@@ -17,6 +17,7 @@ class App:
     self.lastupdate = lastupdate
     self.description = description
     self.changelog = changelog
+    self.image = image
 
 
 
@@ -37,7 +38,7 @@ def fetch_app_details(appurl):
   except:
     lastupdate = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%SZ')
     
-  return (result['version'], result['description'], result['changelog'], lastupdate)
+  return (result['version'], result['description'], result['changelog'], lastupdate, result['icon_url'])
 
 
 
@@ -53,8 +54,8 @@ def fetch_app_list():
   applist = []
     
   for app in appdatajson:
-    (version, description, changelog, lastupdate) = fetch_app_details(app['_links']['self']['href'])
-    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog))
+    (version, description, changelog, lastupdate, image) = fetch_app_details(app['_links']['self']['href'])
+    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog, image))
     
   return applist
 
@@ -91,7 +92,13 @@ def write_rss_feed(filename, applist):
     m = hashlib.md5(app.title.encode('utf-8') + "_".encode('utf-8') + app.version.encode('utf-8'))
     f.write("    <guid>" + m.hexdigest() + "</guid>\n")
 
-    f.write("    <description><![CDATA[Publisher: " + app.publisher + "<br/><br/>Description: " + app.description + "<br/><br/>Changelog: " + app.changelog + "]]></description>\n")
+    f.write("    <description><![CDATA["
+        + "<img src=\"" + app.image + "\">"
+        + "Publisher: "
+        + app.publisher + "<br/><br/>Description: "
+        + app.description + "<br/><br/>Changelog: "
+        + app.changelog
+        + "]]></description>\n")
     f.write("  </item>\n")
     
   f.write("</channel>\n")

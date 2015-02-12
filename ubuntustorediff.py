@@ -8,7 +8,7 @@ import hashlib
 
 # App class
 class App:
-  def __init__(self, title, version, publisher, lastupdate, description, changelog, image):
+  def __init__(self, title, version, publisher, lastupdate, description, changelog, image, price, architecture):
     realtitle = title.replace("&", "&amp;")
 
     self.title = realtitle
@@ -18,6 +18,8 @@ class App:
     self.description = description
     self.changelog = changelog
     self.image = image
+    self.price = price
+    self.architecture = architecture
 
 
 
@@ -55,7 +57,7 @@ def fetch_app_list():
     
   for app in appdatajson:
     (version, description, changelog, lastupdate, image) = fetch_app_details(app['_links']['self']['href'])
-    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog, image))
+    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog, image, app['price'], app['architecture']))
     
   return applist
 
@@ -94,9 +96,11 @@ def write_rss_feed(filename, applist):
 
     f.write("    <description><![CDATA["
         + "<img src=\"" + app.image + "\">"
-        + "Publisher: "
-        + app.publisher + "<br/><br/>Description: "
-        + app.description + "<br/><br/>Changelog: "
+        + "<b>Publisher</b>: " + app.publisher
+        + "<br/><br/><b>Price</b>: " + "{:.1f}".format(app.price)
+        + "<br/><br/><b>Description</b>: " + app.description.replace('\n', '<br/>').replace('\r', '<br/>')
+        + "<br/><br/><b>Architecture(s)</b>: " + ', '.join(app.architecture)
+        + "<br/><br/><b>Changelog</b>: "
         + app.changelog
         + "]]></description>\n")
     f.write("  </item>\n")

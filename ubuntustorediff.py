@@ -44,7 +44,7 @@ def fetch_app_details(appurl):
 
 # Fetch the app list from the store
 def fetch_app_list():
-  result = simplejson.load(urllib.request.urlopen("https://search.apps.ubuntu.com/api/v1/search?q=architecture:armhf&size=100000&page=1"))
+  result = simplejson.load(urllib.request.urlopen("https://search.apps.ubuntu.com/api/v1/search?size=100000&page=1"))
 
   if 'Error' in result:
     sys.exit("Could not fetch/parse JSON.")

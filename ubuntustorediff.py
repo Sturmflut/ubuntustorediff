@@ -8,7 +8,7 @@ import hashlib
 
 # App class
 class App:
-  def __init__(self, title, version, publisher, lastupdate, description, changelog, image, price, architecture):
+  def __init__(self, title, version, publisher, lastupdate, description, changelog, image, price, architecture, keywords, framework, whitelist_country_codes):
     realtitle = title.replace("&", "&amp;")
 
     self.title = realtitle
@@ -20,6 +20,9 @@ class App:
     self.image = image
     self.price = price
     self.architecture = architecture
+    self.keywords = keywords
+    self.framework = framework
+    self.whitelist_country_codes = whitelist_country_codes
 
 
 
@@ -40,7 +43,7 @@ def fetch_app_details(appurl):
   except:
     lastupdate = time.strptime(result['last_updated'], '%Y-%m-%dT%H:%M:%SZ')
     
-  return (result['version'], result['description'], result['changelog'], lastupdate, result['icon_url'])
+  return (result['version'], result['description'], result['changelog'], lastupdate, result['icon_url'], result['keywords'], result['framework'], result['whitelist_country_codes'])
 
 
 
@@ -56,8 +59,8 @@ def fetch_app_list():
   applist = []
     
   for app in appdatajson:
-    (version, description, changelog, lastupdate, image) = fetch_app_details(app['_links']['self']['href'])
-    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog, image, app['price'], app['architecture']))
+    (version, description, changelog, lastupdate, image, keywords, framework, whitelist_country_codes) = fetch_app_details(app['_links']['self']['href'])
+    applist.append(App(app['title'], version, app['publisher'], lastupdate, description, changelog, image, app['price'], app['architecture'], keywords, framework, whitelist_country_codes))
     
   return applist
 
@@ -100,6 +103,9 @@ def write_rss_feed(filename, applist):
         + "<br/><br/><b>Price</b>: " + "{:.1f}".format(app.price)
         + "<br/><br/><b>Description</b>: " + app.description.replace('\n', '<br/>').replace('\r', '<br/>')
         + "<br/><br/><b>Architecture(s)</b>: " + ', '.join(app.architecture)
+        + "<br/><br/><b>Framework(s)</b>: " + ', '.join(app.framework)
+        + "<br/><br/><b>Keyword(s)</b>: " + ', '.join(app.keywords)
+        + "<br/><br/><b>Whitelisted countries</b>: " + ', '.join(app.whitelist_country_codes)
         + "<br/><br/><b>Changelog</b>: "
         + app.changelog
         + "]]></description>\n")

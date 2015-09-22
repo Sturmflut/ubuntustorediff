@@ -107,7 +107,7 @@ def write_rss_feed(filename, applist):
         + "<br/><br/><b>Keyword(s)</b>: " + ', '.join(app.keywords)
         + "<br/><br/><b>Whitelisted countries</b>: " + ', '.join(app.whitelist_country_codes)
         + "<br/><br/><b>Changelog</b>: "
-        + app.changelog
+        + (" " if app.changelog is None else app.changelog)
         + "]]></description>\n")
     f.write("  </item>\n")
     
